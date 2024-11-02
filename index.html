@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiszki Angielskie</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Ucz się Angielskiego! 🎓</h1>
+        
+        <div class="mode-buttons">
+            <button onclick="setMode('learn')" class="mode-btn active" id="learnBtn">Tryb Nauki</button>
+            <button onclick="setMode('test')" class="mode-btn" id="testBtn">Tryb Testu</button>
+        </div>
+
+        <div class="direction-switch">
+            <button onclick="setDirection('en_pl')" class="direction-btn active" id="enPlBtn">Angielski ➜ Polski</button>
+            <button onclick="setDirection('pl_en')" class="direction-btn" id="plEnBtn">Polski ➜ Angielski</button>
+        </div>
+
+        <div class="score-container">
+            <span>Punkty: <span id="score">0</span></span>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="card" onclick="flipCard()">
+            <div class="card-inner">
+                <div class="card-front">
+                    <p id="frontText">Kliknij aby rozpocząć!</p>
+                    <div class="sound-icon" onclick="speakWord(event)">🔊</div>
+                </div>
+                <div class="card-back">
+                    <p id="backText"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button onclick="checkAnswer('wrong')" class="answer-btn wrong">❌ Nie pamiętałem</button>
+            <button onclick="checkAnswer('correct')" class="answer-btn correct">✅ Wiedziałem</button>
+        </div>
+
+        <div class="test-buttons" style="display: none;">
+            <button class="test-btn" onclick="checkTestAnswer(this)"></button>
+            <button class="test-btn" onclick="checkTestAnswer(this)"></button>
+            <button class="test-btn" onclick="checkTestAnswer(this)"></button>
+            <button class="test-btn" onclick="checkTestAnswer(this)"></button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
