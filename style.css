@@ -42,6 +42,16 @@ h1 {
     transform: scale(1.05);
 }
 
+.reset-btn {
+    background: #e67e22;
+    color: white;
+}
+
+.reset-btn:hover {
+    background: #d35400;
+    transform: scale(1.05);
+}
+
 .score-container {
     margin: 20px 0;
     font-size: 1.2em;

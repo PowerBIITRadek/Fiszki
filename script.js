@@ -51,6 +51,15 @@ function updateScore(points) {
     document.getElementById('score').textContent = score;
 }
 
+function resetTest() {
+    currentCard = 0;
+    score = 0;
+    document.getElementById('score').textContent = score;
+    shuffleArray(flashcards);
+    updateProgressBar();
+    showNextCard();
+}
+
 function flipCard() {
     if (currentMode === 'learn') {
         const card = document.querySelector('.card');
