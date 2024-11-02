@@ -314,3 +314,39 @@ h1 {
 .shake {
     animation: shake 0.5s;
 }
+
+.end-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    z-index: 1000;
+}
+
+.end-screen p {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.end-screen button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.end-screen button:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+}

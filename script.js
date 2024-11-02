@@ -33,6 +33,8 @@ let currentDirection = 'en_pl';
 let correctAnswer = '';
 let isFlipped = false;
 let audioContext = null;
+const testLength = 10; // Długość testu
+let testProgress = 0; // Postęp testu
 
 function initAudio() {
     if (!audioContext) {
@@ -123,9 +125,14 @@ function updateGorillaPosition() {
     const gorilla = document.querySelector('.gorilla-climb');
     const progressBar = document.querySelector('.progress-bar');
     const progressContainer = document.querySelector('.progress-container');
-    const progress = (currentCard / flashcards.length);
     
-    // Oblicz pozycję na podstawie szerokości kontenera i postępu
+    let progress;
+    if (currentMode === 'learn') {
+        progress = currentCard / flashcards.length;
+    } else {
+        progress = testProgress / testLength;
+    }
+    
     const containerWidth = progressContainer.offsetWidth;
     const gorillaWidth = gorilla.offsetWidth;
     const maxPosition = containerWidth - gorillaWidth;
@@ -143,7 +150,12 @@ function shuffleArray(array) {
 }
 
 function updateProgressBar() {
-    const progress = (currentCard / flashcards.length) * 100;
+    let progress;
+    if (currentMode === 'learn') {
+        progress = (currentCard / flashcards.length) * 100;
+    } else {
+        progress = (testProgress / testLength) * 100;
+    }
     document.getElementById('progressBar').style.width = `${progress}%`;
     updateGorillaPosition();
 }
@@ -158,6 +170,7 @@ function resetTest() {
     initAudio();
     currentCard = 0;
     score = 0;
+    testProgress = 0;
     document.getElementById('score').textContent = score;
     shuffleArray(flashcards);
     updateProgressBar();
@@ -234,6 +247,30 @@ function setupTestQuestion(word) {
     });
 }
 
+function showEndScreen(didWin) {
+    const endScreen = document.createElement('div');
+    endScreen.className = 'end-screen';
+    
+    const message = document.createElement('p');
+    message.textContent = didWin ? 'Gratulacje! Wygrałeś! 🎉' : 'Niestety, spróbuj ponownie. 😞';
+    
+    const scoreInfo = document.createElement('p');
+    scoreInfo.textContent = `Twój wynik: ${score} bananów 🍌`;
+    
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Zagraj ponownie';
+    resetButton.addEventListener('click', () => {
+        endScreen.remove();
+        resetTest();
+    });
+    
+    endScreen.appendChild(message);
+    endScreen.appendChild(scoreInfo);
+    endScreen.appendChild(resetButton);
+    
+    document.body.appendChild(endScreen);
+}
+
 function checkTestAnswer(button) {
     initAudio();
     const selectedAnswer = button.textContent;
@@ -251,14 +288,24 @@ function checkTestAnswer(button) {
         button.classList.add('correct-answer');
         setTimeout(() => {
             currentCard++;
-            showNextCard();
+            testProgress++;
+            if (testProgress === testLength) {
+                showEndScreen(true);
+            } else {
+                showNextCard();
+            }
         }, 1000);
     } else {
         button.classList.add('wrong-answer');
         updateScore(-5);
         setTimeout(() => {
             currentCard++;
-            showNextCard();
+            testProgress++;
+            if (testProgress === testLength) {
+                showEndScreen(false);
+            } else {
+                showNextCard();
+            }
         }, 1500);
     }
 }
@@ -290,6 +337,7 @@ function setMode(mode) {
     document.getElementById('testBtn').classList.toggle('active', mode === 'test');
     currentCard = 0;
     score = 0;
+    testProgress = 0;
     document.getElementById('score').textContent = score;
     showNextCard();
 }
