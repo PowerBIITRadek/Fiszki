@@ -29,9 +29,110 @@ let flashcards = [
 let currentCard = 0;
 let score = 0;
 let currentMode = 'learn';
-let currentDirection = 'en_pl'; // 'en_pl' lub 'pl_en'
+let currentDirection = 'en_pl';
 let correctAnswer = '';
 let isFlipped = false;
+let audioContext = null;
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playSuccessSound() {
+    if (!audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+function playErrorSound() {
+    if (!audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(200, audioContext.currentTime + 0.2);
+    
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.2);
+}
+
+function playClickSound() {
+    if (!audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+    
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function showPointsAnimation(points, isCorrect) {
+    const animation = document.createElement('div');
+    animation.className = 'points-animation';
+    animation.textContent = isCorrect ? `+${points} 🍌` : `${points} 🍌`;
+    animation.style.color = isCorrect ? '#2ecc71' : '#e74c3c';
+    
+    const scoreContainer = document.querySelector('.score-container');
+    scoreContainer.appendChild(animation);
+    
+    if (isCorrect) {
+        playSuccessSound();
+    } else {
+        playErrorSound();
+    }
+    
+    setTimeout(() => {
+        animation.remove();
+    }, 1000);
+}
+
+function updateGorillaPosition() {
+    const gorilla = document.querySelector('.gorilla-climb');
+    const progressBar = document.querySelector('.progress-bar');
+    const progressContainer = document.querySelector('.progress-container');
+    const progress = (currentCard / flashcards.length);
+    
+    // Oblicz pozycję na podstawie szerokości kontenera i postępu
+    const containerWidth = progressContainer.offsetWidth;
+    const gorillaWidth = gorilla.offsetWidth;
+    const maxPosition = containerWidth - gorillaWidth;
+    const position = progress * maxPosition;
+    
+    gorilla.style.left = `${position}px`;
+}
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -44,27 +145,33 @@ function shuffleArray(array) {
 function updateProgressBar() {
     const progress = (currentCard / flashcards.length) * 100;
     document.getElementById('progressBar').style.width = `${progress}%`;
+    updateGorillaPosition();
 }
 
 function updateScore(points) {
     score += points;
     document.getElementById('score').textContent = score;
+    showPointsAnimation(points, points > 0);
 }
 
 function resetTest() {
+    initAudio();
     currentCard = 0;
     score = 0;
     document.getElementById('score').textContent = score;
     shuffleArray(flashcards);
     updateProgressBar();
     showNextCard();
+    playClickSound();
 }
 
 function flipCard() {
+    initAudio();
     if (currentMode === 'learn') {
         const card = document.querySelector('.card');
         card.classList.toggle('flipped');
         isFlipped = !isFlipped;
+        playClickSound();
     }
 }
 
@@ -109,7 +216,6 @@ function setupTestQuestion(word) {
     document.querySelector('.buttons').style.display = 'none';
     document.querySelector('.test-buttons').style.display = 'grid';
 
-    // Przygotuj opcje odpowiedzi
     let options = [currentDirection === 'en_pl' ? word.polish : word.english];
     while (options.length < 4) {
         const randomWord = flashcards[Math.floor(Math.random() * flashcards.length)];
@@ -120,7 +226,6 @@ function setupTestQuestion(word) {
     }
     options = shuffleArray(options);
 
-    // Ustaw przyciski
     const buttons = document.querySelectorAll('.test-btn');
     buttons.forEach((btn, index) => {
         btn.textContent = options[index];
@@ -130,6 +235,7 @@ function setupTestQuestion(word) {
 }
 
 function checkTestAnswer(button) {
+    initAudio();
     const selectedAnswer = button.textContent;
     const buttons = document.querySelectorAll('.test-btn');
     
@@ -158,18 +264,17 @@ function checkTestAnswer(button) {
 }
 
 function checkAnswer(type) {
+    initAudio();
     if (type === 'correct') {
         updateScore(10);
         currentCard++;
         showNextCard();
     } else {
         updateScore(-5);
-        // Pokaż tłumaczenie przed przejściem do następnej karty
         const card = document.querySelector('.card');
         card.classList.add('flipped');
         isFlipped = true;
         
-        // Poczekaj 2 sekundy przed pokazaniem następnej karty
         setTimeout(() => {
             currentCard++;
             showNextCard();
@@ -178,6 +283,8 @@ function checkAnswer(type) {
 }
 
 function setMode(mode) {
+    initAudio();
+    playClickSound();
     currentMode = mode;
     document.getElementById('learnBtn').classList.toggle('active', mode === 'learn');
     document.getElementById('testBtn').classList.toggle('active', mode === 'test');
@@ -188,6 +295,8 @@ function setMode(mode) {
 }
 
 function setDirection(direction) {
+    initAudio();
+    playClickSound();
     currentDirection = direction;
     document.getElementById('enPlBtn').classList.toggle('active', direction === 'en_pl');
     document.getElementById('plEnBtn').classList.toggle('active', direction === 'pl_en');
@@ -196,6 +305,7 @@ function setDirection(direction) {
 }
 
 function speakWord(event) {
+    initAudio();
     event.stopPropagation();
     const textToSpeak = isFlipped ? 
         document.getElementById('backText').textContent : 
@@ -204,8 +314,12 @@ function speakWord(event) {
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = (currentDirection === 'en_pl') === !isFlipped ? 'en-US' : 'pl-PL';
     window.speechSynthesis.speak(utterance);
+    playClickSound();
 }
 
 // Inicjalizacja
 shuffleArray(flashcards);
 showNextCard();
+
+// Dodanie obsługi kliknięcia na dokument do inicjalizacji audio
+document.addEventListener('click', initAudio, { once: true });

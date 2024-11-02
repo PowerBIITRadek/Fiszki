@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fiszki Angielskie</title>
+    <title>Gorilla Fiszki</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>🎓 Ucz się Angielskiego! 🎓</h1>
+        <div class="gorilla-header">
+            <img src="gorilla.jpg" alt="Gorilla Tag" class="gorilla-logo">
+            <h1>🌴 Gorilla Fiszki! 🌴</h1>
+        </div>
         
         <div class="mode-buttons">
             <button onclick="setMode('learn')" class="mode-btn active" id="learnBtn">Tryb Nauki</button>
@@ -22,9 +25,16 @@
         </div>
 
         <div class="score-container">
-            <span>Punkty: <span id="score">0</span></span>
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <div class="score-label">
+                <span>Banany: <span id="score">0</span> 🍌</span>
+            </div>
+            <div class="progress-wrapper">
+                <div class="gorilla-climb">
+                    <img src="gorilla.jpg" alt="Climbing Gorilla" class="climbing-gorilla">
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
             </div>
         </div>
 
