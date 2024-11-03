@@ -9,7 +9,7 @@ Interaktywna aplikacja do nauki angielskiego słownictwa w stylu gry Gorilla Tag
 - System punktów z bananami
 - Efekty dźwiękowe
 - Możliwość zmiany kierunku tłumaczenia (polski ↔ angielski)
-- Synteza mowy dla wymowy słów
+- Synteza mowy dla wymowy słów.
 
 ## Technologie
 
