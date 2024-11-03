@@ -215,6 +215,7 @@ function showNextCard() {
     }
 
     updateProgressBar();
+    speakWord(); // Automatyczne czytanie słowa
 }
 
 function setupTestQuestion(word) {
@@ -352,9 +353,8 @@ function setDirection(direction) {
     showNextCard();
 }
 
-function speakWord(event) {
+function speakWord() {
     initAudio();
-    event.stopPropagation();
     const textToSpeak = isFlipped ? 
         document.getElementById('backText').textContent : 
         document.getElementById('frontText').textContent;
