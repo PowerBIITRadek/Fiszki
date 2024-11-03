@@ -16,6 +16,7 @@
         <div class="mode-buttons">
             <button onclick="setMode('learn')" class="mode-btn active" id="learnBtn">Tryb Nauki</button>
             <button onclick="setMode('test')" class="mode-btn" id="testBtn">Tryb Testu</button>
+            <button onclick="setMode('input')" class="mode-btn" id="inputBtn">Tryb Wpisywania</button>
             <button onclick="resetTest()" class="mode-btn reset-btn" id="resetBtn">Reset Testu</button>
         </div>
 
@@ -60,6 +61,15 @@
             <button class="test-btn" onclick="checkTestAnswer(this)"></button>
             <button class="test-btn" onclick="checkTestAnswer(this)"></button>
             <button class="test-btn" onclick="checkTestAnswer(this)"></button>
+        </div>
+
+        <div class="input-mode" style="display: none;">
+            <div class="input-container">
+                <input type="text" id="inputAnswer" placeholder="Wpisz odpowiedź tutaj">
+                <button onclick="checkInputAnswer()" class="input-check-btn">Sprawdź</button>
+                <div id="correctAnswerDisplay" class="correct-answer-display"></div>
+                <button onclick="continueToNextCard()" id="continueBtn" class="continue-btn" style="display: none;">Kontynuuj</button>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>

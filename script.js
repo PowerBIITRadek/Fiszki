@@ -33,8 +33,9 @@ let currentDirection = 'en_pl';
 let correctAnswer = '';
 let isFlipped = false;
 let audioContext = null;
-const testLength = 10; // Długość testu
-let testProgress = 0; // Postęp testu
+const testLength = 10;
+let testProgress = 0;
+let canProceed = true;
 
 function initAudio() {
     if (!audioContext) {
@@ -210,12 +211,15 @@ function showNextCard() {
         }
         document.querySelector('.buttons').style.display = 'block';
         document.querySelector('.test-buttons').style.display = 'none';
-    } else {
+        document.querySelector('.input-mode').style.display = 'none';
+    } else if (currentMode === 'test') {
         setupTestQuestion(currentWord);
+    } else if (currentMode === 'input') {
+        setupInputMode(currentWord);
     }
 
     updateProgressBar();
-    speakWord(); // Automatyczne czytanie słowa
+    speakWord();
 }
 
 function setupTestQuestion(word) {
@@ -229,6 +233,7 @@ function setupTestQuestion(word) {
     
     document.querySelector('.buttons').style.display = 'none';
     document.querySelector('.test-buttons').style.display = 'grid';
+    document.querySelector('.input-mode').style.display = 'none';
 
     let options = [currentDirection === 'en_pl' ? word.polish : word.english];
     while (options.length < 4) {
@@ -246,6 +251,60 @@ function setupTestQuestion(word) {
         btn.classList.remove('correct-answer', 'wrong-answer');
         btn.disabled = false;
     });
+}
+
+function setupInputMode(word) {
+    if (currentDirection === 'en_pl') {
+        document.getElementById('frontText').textContent = word.english;
+        correctAnswer = word.polish;
+    } else {
+        document.getElementById('frontText').textContent = word.polish;
+        correctAnswer = word.english;
+    }
+    
+    document.querySelector('.buttons').style.display = 'none';
+    document.querySelector('.test-buttons').style.display = 'none';
+    document.querySelector('.input-mode').style.display = 'block';
+    
+    // Reset input state
+    document.getElementById('inputAnswer').value = '';
+    document.getElementById('correctAnswerDisplay').textContent = '';
+    document.getElementById('continueBtn').style.display = 'none';
+    document.getElementById('inputAnswer').disabled = false;
+    document.querySelector('.input-check-btn').disabled = false;
+    canProceed = true;
+}
+
+function checkInputAnswer() {
+    if (!canProceed) return;
+    
+    const userAnswer = document.getElementById('inputAnswer').value.trim().toLowerCase();
+    const correct = correctAnswer.toLowerCase();
+    
+    if (userAnswer === correct) {
+        updateScore(10);
+        showPointsAnimation(10, true);
+        playSuccessSound();
+        currentCard++;
+        showNextCard();
+    } else {
+        updateScore(-5);
+        showPointsAnimation(-5, false);
+        playErrorSound();
+        document.getElementById('correctAnswerDisplay').textContent = `Poprawna odpowiedź: ${correctAnswer}`;
+        document.getElementById('continueBtn').style.display = 'block';
+        document.getElementById('inputAnswer').disabled = true;
+        document.querySelector('.input-check-btn').disabled = true;
+        canProceed = false;
+    }
+}
+
+function continueToNextCard() {
+    if (!canProceed) {
+        currentCard++;
+        showNextCard();
+        canProceed = true;
+    }
 }
 
 function showEndScreen(didWin) {
@@ -336,6 +395,7 @@ function setMode(mode) {
     currentMode = mode;
     document.getElementById('learnBtn').classList.toggle('active', mode === 'learn');
     document.getElementById('testBtn').classList.toggle('active', mode === 'test');
+    document.getElementById('inputBtn').classList.toggle('active', mode === 'input');
     currentCard = 0;
     score = 0;
     testProgress = 0;
@@ -371,3 +431,14 @@ showNextCard();
 
 // Dodanie obsługi kliknięcia na dokument do inicjalizacji audio
 document.addEventListener('click', initAudio, { once: true });
+
+// Dodanie obsługi klawisza Enter w polu wprowadzania
+document.getElementById('inputAnswer').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        if (canProceed) {
+            checkInputAnswer();
+        } else if (document.getElementById('continueBtn').style.display === 'block') {
+            continueToNextCard();
+        }
+    }
+});
